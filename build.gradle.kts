@@ -10,7 +10,7 @@ plugins {
 korge {
 	id = "com.example.example"
     supportBox2d()
-    orientation = com.soywiz.korge.gradle.Orientation.LANDSCAPE
+    orientation = com.soywiz.korge.gradle.Orientation.PORTRAIT
 	targetJvm()
     targetAndroidDirect()
 
