@@ -12,6 +12,8 @@ import com.soywiz.korge.view.roundRect
 import com.soywiz.korge.view.solidRect
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.font.*
+import com.soywiz.korim.paint.*
+import com.soywiz.korio.dynamic.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.degrees
 import com.soywiz.korma.geom.vector.*
@@ -26,7 +28,6 @@ suspend fun main() = Korge(width = 512, height =1280, bgcolor = Colors["#2b2b2b"
     val sceneContainer = sceneContainer()
     sceneContainer.changeTo({ MyScene() })
 }
-
 class MyScene : Scene() {
     val destiny=10.0
     val boxSize=49.0
@@ -35,6 +36,7 @@ class MyScene : Scene() {
     var contText="beyhan ;)"
     var score1 = 0 // skoru tutacak değişken
     val contentInput=ArrayList<String>()
+    var delayTime=5000L
     override suspend fun SContainer.sceneInit() {
         val font = resourcesVfs["BebasNeue-Regular.ttf"].readTtfFont()
         graphics {
@@ -70,7 +72,7 @@ class MyScene : Scene() {
         val charrList = charr.split("").filter { it.isNotEmpty() }.toList() as ArrayList<String>
         var falseCount= 0
 
-
+        val buttonList = arrayListOf<UIButton>()
         charrList.shuffle()
         solidRect(512, 50, Colors.DARKGOLDENROD).position(0, 1050).registerBodyWithFixture(
             type = BodyType.STATIC,
@@ -84,16 +86,15 @@ class MyScene : Scene() {
             }
         }
 
- /*       val bgScore= circle(80.0,  Colors["#75888c"]) {
-            position(180.0, 370.0)
-        }
-        text("", cellSize * 0.5, Colors.WHITE, ).centerOn(bgScore)
-          */
+//      val bgScore= circle(80.0,  Colors["#75888c"]) {
+//            position(180.0, 370.0)
+//        }
+//        text("", cellSize * 0.5, Colors.WHITE, ).centerOn(bgScore)
+
         //süs
       solidRect(240.0,7.0,  Colors.GOLD) {
             position(140.0, 550.0)
         }
-
 
         //direk
         for (i in 0..8)
@@ -102,9 +103,15 @@ class MyScene : Scene() {
                 friction = 0.99
             ).visible=false
         //silme butonu
-        val  removeBttn=  uiButton(width = 105.0, 65.0, text = "ğ") {
+        val  removeBttn=  uiButton(width = 105.0, 65.0, text = "") {
             position(-1, 1045)
             onPress {
+                if (buttonList.isNotEmpty()) {
+                    // Listenin son elemanını sil
+                    for (k in 0..buttonList.size-1){
+                    val btn = buttonList.removeAt(buttonList.size - 1)
+                    btn.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                }}
                 contentInput.clear()
                 UpdateContent("")
                 println(contentInput.joinToString(separator = ""))  }
@@ -113,36 +120,57 @@ class MyScene : Scene() {
             .also { it.textSize =cellSize/1.5 }
         text("X", cellSize * 0.5, Colors.WHITE, font).centerOn(removeBttn)
 
+
         //onaylama butonu
-        uiButton(width = 105.0, 65.0, text = "OK") {
+        val onay=uiButton(width = 105.0, 65.0, text = "OK") {
             position(410, 1045)
             onPress {
-            if(contentInput.joinToString(separator = "")!="DD"){
+                calculateWordPoints(contentInput.joinToString(separator = ""))
+            if(contentInput.joinToString(separator = "")=="DD"){//??
+
                 falseCount+=1
-                if(falseCount==3){
-                    falseCount=0
+                println(falseCount)
+                if(falseCount==3) {
+                    falseCount = 0
                     for (i in 0..7) {
-                        val  charRand1 = Random.nextInt(0,charrList.size)
-                        uiButton(width = boxSize, boxSize, text = charrList[charRand1]) {
-                            position(13+ i * 63, 450).rotation(0.degrees)
+                    val charRand = Random.nextInt(0, charrList.size)
+                    val newb = uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
+//                        position(-397 + i * 63, -600).rotation(0.degrees)
+                         position(13+ i * 63,450 ).rotation(0.degrees)
+                        onPress {
+                            println(charrList[charRand])
+                            UpdateContent(charrList[charRand])
+                            buttonList.add(this)
+                            this.colorMul=Colors.WHITE
+                            calculateWordPoints(contentInput.joinToString(separator = ""))
+                        }
+                    }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]] }
+                        .also { it.textColor = Colors.AZURE }
+                        .also { it.textSize = cellSize / 2 }
+                        .also { it.textFont = font }
+                    val a=newb.parent?.parent
+                     a?.addChild(newb)
+                    newb.registerBodyWithFixture(type = BodyType.DYNAMIC,density = destiny,friction = 100.0,
+                        angularDamping = 50.0,
+                        gravityScale = 2.0,
+                    )
 
-                            onPress {
-                                println(charrList[charRand1])
-                                UpdateContent(charrList[charRand1])
-
-                            }
-                        }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
-                        }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
-                            .also { it.textColor = Colors.AZURE }
-                            .also { it.textSize =cellSize/2 }
-
-                    }
-                }
-            }
+                   }}
+               }else{
+                if (buttonList.isNotEmpty()) {
+                    // Listenin son elemanını sil
+                    for (k in 0..buttonList.size-1){
+                        val btn = buttonList.removeAt(buttonList.size - 1)
+                        btn.position(440.0,4004.0)
+                        contentInput.clear()
+                        UpdateContent("")
+                    }}
+               }
             }
         }.also { it.colorMul = Colors["#4effeb"] }
             .also { it.textColor = Colors.WHITE }
             .also { it.textSize =cellSize/1.5 }
+
 
    for (j in 0..2){
             for (i in 0..7) {
@@ -150,9 +178,12 @@ class MyScene : Scene() {
               val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
-                    onPress {
+                    onClick {
+
                         println(charrList[charRand])
                         UpdateContent(charrList[charRand])
+                        buttonList.add(this)
+                        this.colorMul=Colors.WHITE
                     }
                 }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                 }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
@@ -161,35 +192,29 @@ class MyScene : Scene() {
                   .also { it.textFont =font }
 
             }}
-        onClick {
-//            for (i in 0..7) {
-//           uiButton(width = boxSize, boxSize, text = "A") {
-//                    position(13+ i * 63, 450).rotation(0.degrees)
-//
-//                    onPress {println(it.startGlobal)
-//                    }
-//                }.also { it.colorMul = random1[random1[Colors.RED, Colors.AQUA], random1[Colors.YELLOW, Colors.BLUE]] }
-//                    .registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction =2.99)
-//                    .also { it.textSize =cellSize/2  }
-//            }
-        }
 
-        GlobalScope.launch {
+            //süreye göre harf ekleme
+            GlobalScope.launch {
             while(true) {
-                delay(3600)
+
+                delay(delayTime)
+
+                val  charRand = Random.nextInt(0,charrList.size)
                 val i = Random.nextInt(0, 8)
-                uiButton(width = boxSize, boxSize, text = "A") {
+                val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
                     position(13+ i * 63, 450).rotation(0.degrees)
+
                     onPress {
-                        also { position(500 - i * 55, 4500) }
-                        println(charrList[i])
-                        updateScore(10)
+                        println(charrList[charRand])
+                        UpdateContent(charrList[charRand])
+                        buttonList.add(this)
+                        this.colorMul=Colors.WHITE
                     }
-                    buttonBackColor = Colors.WHITE
-                }.also { it.colorMul = random1[random1[Colors.RED, Colors.AQUA], random1[Colors.YELLOW, Colors.BLUE]] }
-                    .registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.99, angularDamping = 50.0, gravityScale = 2.0)
+                }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
+                    .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
-                    .also { it.textColor = Colors.WHITE }
+                    .also { it.textFont =font }
             }
         }
     }
@@ -201,7 +226,58 @@ class MyScene : Scene() {
     }
     fun updateScore(newScore: Int) {
         score1 += newScore // skoru güncelle
+        //süre azaltma
+             if(score1>=400)
+                delayTime=1000L
+             else if(score1>=300)
+                delayTime=2000L
+             else if(score1>=300)
+                delayTime=3000L
+             else if(score1>=200)
+                delayTime=3000L
+             else  if(score1>=100)
+                delayTime=4000L
+
         scoreText.text = "$score1" // skor kutusunu güncelle
+   }
+    fun calculateWordPoints(word: String) {
+        var points = 0
+        println("qa")
+        for (char in word) {
+            points += when (char.toUpperCase()) {
+                'A' -> 1
+                'B' -> 3
+                'C' -> 4
+                'Ç' -> 4
+                'D' -> 3
+                'E' -> 1
+                'F' -> 7
+                'G' -> 5
+                'Ğ' -> 8
+                'H' -> 5
+                'I' -> 2
+                'İ' -> 1
+                'J' -> 10
+                'K' -> 1
+                'L' -> 1
+                'M' -> 2
+                'N' -> 1
+                'O' -> 2
+                'Ö' -> 7
+                'P' -> 5
+                'R' -> 1
+                'S' -> 2
+                'Ş' -> 4
+                'T' -> 1
+                'U' -> 2
+                'Ü' -> 3
+                'V' -> 7
+                'Y' -> 3
+                'Z' -> 4
+                else -> 0
+            }
+        }
+        updateScore(points)
     }
 
 }
