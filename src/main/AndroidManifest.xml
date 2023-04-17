@@ -20,7 +20,7 @@
 			android:label="unnamed"
 			android:logo="@drawable/app_icon"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-			android:screenOrientation="landscape"
+			android:screenOrientation="portrait"
 		>
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
