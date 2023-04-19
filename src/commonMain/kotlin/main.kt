@@ -134,8 +134,10 @@ class MyScene : Scene() {
             position(410, 1045)
             onPress {
 
+                val c_text = contentInput.joinToString(separator = "").lowercase()
+
                 for (line in lines) {
-                    if (line.equals(contentInput.joinToString(separator = "")))
+                    if (line.equals(c_text))
                     {
                         calculateWordPoints(contentInput.joinToString(separator = ""))
                     }
@@ -158,8 +160,10 @@ class MyScene : Scene() {
                             UpdateContent(charrList[charRand])
                             buttonList.add(this)
                             this.colorMul=Colors.WHITE
+                            val c_text = contentInput.joinToString(separator = "").lowercase()
+
                             for (line in lines) {
-                                if (line.equals(contentInput.joinToString(separator = "")))
+                                if (line.equals(c_text))
                                 {
                                     calculateWordPoints(contentInput.joinToString(separator = ""))
                                 }
