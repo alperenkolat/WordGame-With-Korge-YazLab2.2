@@ -54,11 +54,11 @@ class MyScene : Scene() {
         }
         scoreText = text("$score1", textSize = 32.0,  ).centerOn(bgScore)
 
-         val bgInput=solidRect(412, 50, Colors.DARKGOLDENROD).position(0, 1050)
-             .registerBodyWithFixture(
-             type = BodyType.STATIC,
-             friction = 0.99
-         )
+        val bgInput=solidRect(412, 50, Colors.DARKGOLDENROD).position(0, 1050)
+            .registerBodyWithFixture(
+                type = BodyType.STATIC,
+                friction = 0.99
+            )
         InputText =text("$contText", textSize = 30.0,Colors.WHITE,font)
             .centerOn(bgInput)
 
@@ -100,7 +100,7 @@ class MyScene : Scene() {
 //        text("", cellSize * 0.5, Colors.WHITE, ).centerOn(bgScore)
 
         //süs
-      solidRect(240.0,7.0,  Colors.GOLD) {
+        solidRect(240.0,7.0,  Colors.GOLD) {
             position(140.0, 550.0)
         }
 
@@ -117,9 +117,9 @@ class MyScene : Scene() {
                 if (buttonList.isNotEmpty()) {
                     // Listenin son elemanını sil
                     for (k in 0..buttonList.size-1){
-                    val btn = buttonList.removeAt(buttonList.size - 1)
-                    btn.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
-                }}
+                        val btn = buttonList.removeAt(buttonList.size - 1)
+                        btn.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                    }}
                 contentInput.clear()
                 UpdateContent("")
                 println(contentInput.joinToString(separator = ""))  }
@@ -144,66 +144,66 @@ class MyScene : Scene() {
                 }
 
 
-            if(contentInput.joinToString(separator = "")=="DD"){//??
+                if(contentInput.joinToString(separator = "")=="DD"){//??
 
-                falseCount+=1
-                println(falseCount)
-                if(falseCount==3) {
-                    falseCount = 0
-                    for (i in 0..7) {
-                    val charRand = Random.nextInt(0, charrList.size)
-                    val newb = uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
+                    falseCount+=1
+                    println(falseCount)
+                    if(falseCount==3) {
+                        falseCount = 0
+                        for (i in 0..7) {
+                            val charRand = Random.nextInt(0, charrList.size)
+                            val newb = uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
 //                        position(-397 + i * 63, -600).rotation(0.degrees)
-                         position(13+ i * 63,450 ).rotation(0.degrees)
-                        onPress {
-                            println(charrList[charRand])
-                            UpdateContent(charrList[charRand])
-                            buttonList.add(this)
-                            this.colorMul=Colors.WHITE
-                            val c_text = contentInput.joinToString(separator = "").lowercase()
+                                position(13+ i * 63,450 ).rotation(0.degrees)
+                                onPress {
+                                    println(charrList[charRand])
+                                    UpdateContent(charrList[charRand])
+                                    buttonList.add(this)
+                                    this.colorMul=Colors.WHITE
+                                    val c_text = contentInput.joinToString(separator = "").lowercase()
 
-                            for (line in lines) {
-                                if (line.equals(c_text))
-                                {
-                                    calculateWordPoints(contentInput.joinToString(separator = ""))
+                                    for (line in lines) {
+                                        if (line.equals(c_text))
+                                        {
+                                            calculateWordPoints(contentInput.joinToString(separator = ""))
+                                        }
+                                    }
+
+
+
                                 }
-                            }
+                            }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]] }
+                                .also { it.textColor = Colors.AZURE }
+                                .also { it.textSize = cellSize / 2 }
+                                .also { it.textFont = font }
+                            val a=newb.parent?.parent
+                            a?.addChild(newb)
+                            newb.registerBodyWithFixture(type = BodyType.DYNAMIC,density = destiny,friction = 100.0,
+                                angularDamping = 50.0,
+                                gravityScale = 2.0,
+                            )
 
-
-
-                        }
-                    }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]] }
-                        .also { it.textColor = Colors.AZURE }
-                        .also { it.textSize = cellSize / 2 }
-                        .also { it.textFont = font }
-                    val a=newb.parent?.parent
-                     a?.addChild(newb)
-                    newb.registerBodyWithFixture(type = BodyType.DYNAMIC,density = destiny,friction = 100.0,
-                        angularDamping = 50.0,
-                        gravityScale = 2.0,
-                    )
-
-                   }}
-               }else{
-                if (buttonList.isNotEmpty()) {
-                    // Listenin son elemanını sil
-                    for (k in 0..buttonList.size-1){
-                        val btn = buttonList.removeAt(buttonList.size - 1)
-                        btn.position(440.0,4004.0)
-                        contentInput.clear()
-                        UpdateContent("")
-                    }}
-               }
+                        }}
+                }else{
+                    if (buttonList.isNotEmpty()) {
+                        // Listenin son elemanını sil
+                        for (k in 0..buttonList.size-1){
+                            val btn = buttonList.removeAt(buttonList.size - 1)
+                            btn.position(440.0,4004.0)
+                            contentInput.clear()
+                            UpdateContent("")
+                        }}
+                }
             }
         }.also { it.colorMul = Colors["#4effeb"] }
             .also { it.textColor = Colors.WHITE }
             .also { it.textSize =cellSize/1.5 }
 
 
-   for (j in 0..2){
+        for (j in 0..2){
             for (i in 0..7) {
                 val  charRand = Random.nextInt(0,charrList.size)
-              val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
+                val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
                     onClick {
@@ -217,12 +217,12 @@ class MyScene : Scene() {
                 }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
                     .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
-                  .also { it.textFont =font }
+                    .also { it.textFont =font }
 
             }}
 
-            //süreye göre harf ekleme
-            GlobalScope.launch {
+        //süreye göre harf ekleme
+        GlobalScope.launch {
             while(true) {
 
                 delay(delayTime)
@@ -255,19 +255,19 @@ class MyScene : Scene() {
     fun updateScore(newScore: Int) {
         score1 += newScore // skoru güncelle
         //süre azaltma
-             if(score1>=400)
-                delayTime=1000L
-             else if(score1>=300)
-                delayTime=2000L
-             else if(score1>=300)
-                delayTime=3000L
-             else if(score1>=200)
-                delayTime=3000L
-             else  if(score1>=100)
-                delayTime=4000L
+        if(score1>=400)
+            delayTime=1000L
+        else if(score1>=300)
+            delayTime=2000L
+        else if(score1>=300)
+            delayTime=3000L
+        else if(score1>=200)
+            delayTime=3000L
+        else  if(score1>=100)
+            delayTime=4000L
 
         scoreText.text = "$score1" // skor kutusunu güncelle
-   }
+    }
     fun calculateWordPoints(word: String) {
         var points = 0
         for (char in word) {
@@ -308,4 +308,3 @@ class MyScene : Scene() {
     }
 
 }
-
