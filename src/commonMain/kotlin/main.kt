@@ -1,15 +1,12 @@
-import com.soywiz.korge.scene.*
-import com.soywiz.korge.view.*
+import com.soywiz.korev.*
 import com.soywiz.korge.Korge
 import com.soywiz.korge.box2d.*
-import com.soywiz.korge.box2d.body
 import com.soywiz.korge.debug.*
 import com.soywiz.korge.input.onClick
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.scene.*
 import com.soywiz.korge.ui.*
-import com.soywiz.korge.view.position
-import com.soywiz.korge.view.rotation
-import com.soywiz.korge.view.roundRect
-import com.soywiz.korge.view.solidRect
+import com.soywiz.korge.view.*
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.font.*
 import com.soywiz.korim.paint.*
@@ -20,18 +17,42 @@ import com.soywiz.korma.geom.vector.*
 import com.soywiz.korma.random.*
 import kotlinx.coroutines.*
 import org.jbox2d.dynamics.*
-import com.soywiz.korge.resources.*
-
+import java.io.*
 import kotlin.concurrent.*
 import kotlin.random.Random
 
-import java.io.*
-
+var scane_switcher = 0
+lateinit var sceneContainer: SceneContainer
 
 suspend fun main() = Korge(width = 512, height =1280, bgcolor = Colors["#2b2b2b"]) {
-    val sceneContainer = sceneContainer()
+    sceneContainer = sceneContainer()
     sceneContainer.changeTo({ MyScene() })
+
 }
+
+class Scene2 : Scene() {
+    lateinit var scoreText: Text // skor kutusunu tutacak değişken
+
+    override suspend fun SContainer.sceneInit() {
+        val font = resourcesVfs["BebasNeue-Regular.ttf"].readTtfFont()
+
+        val bgScore= circle(80.0,  Colors["#75888c"]) {
+            position(180.0, 370.0)
+        }
+        scoreText = text("84", textSize = 32.0).centerOn(bgScore)
+
+
+         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
+             .xy(125, 600)
+
+
+    }
+
+}
+
+
+
+
 class MyScene : Scene() {
     val destiny=10.0
     val boxSize=49.0
@@ -42,6 +63,7 @@ class MyScene : Scene() {
     val contentInput=ArrayList<String>()
     var delayTime=5000L
     override suspend fun SContainer.sceneInit() {
+
         val font = resourcesVfs["BebasNeue-Regular.ttf"].readTtfFont()
         graphics {
             it.position(0.0,350.0)
@@ -52,7 +74,7 @@ class MyScene : Scene() {
         val bgScore= circle(80.0,  Colors["#75888c"]) {
             position(180.0, 370.0)
         }
-        scoreText = text("$score1", textSize = 32.0,  ).centerOn(bgScore)
+        scoreText = text("$score1", textSize = 32.0).centerOn(bgScore)
 
         val bgInput=solidRect(412, 50, Colors.DARKGOLDENROD).position(0, 1050)
             .registerBodyWithFixture(
@@ -66,6 +88,7 @@ class MyScene : Scene() {
     }
 
     override suspend fun SContainer.sceneMain() {
+
         val file = resourcesVfs["word_list.txt"]
         val lines = file.readLines()
 
@@ -122,7 +145,10 @@ class MyScene : Scene() {
                     }}
                 contentInput.clear()
                 UpdateContent("")
-                println(contentInput.joinToString(separator = ""))  }
+                println(contentInput.joinToString(separator = ""))
+            }
+
+
         }.also { it.colorMul = Colors["#ff1552"] }
             .also { it.textColor = Colors.WHITE }
             .also { it.textSize =cellSize/1.5 }
@@ -178,7 +204,8 @@ class MyScene : Scene() {
                                 .also { it.textFont = font }
                             val a=newb.parent?.parent
                             a?.addChild(newb)
-                            newb.registerBodyWithFixture(type = BodyType.DYNAMIC,density = destiny,friction = 100.0,
+                            newb.registerBodyWithFixture(
+                                type = BodyType.DYNAMIC, density = destiny, friction = 100.0,
                                 angularDamping = 50.0,
                                 gravityScale = 2.0,
                             )
@@ -219,11 +246,30 @@ class MyScene : Scene() {
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
 
+                buttonList.add(alp)
+
             }}
 
         //süreye göre harf ekleme
         GlobalScope.launch {
+
+
             while(true) {
+
+
+                for (i in 0 until buttonList.size ) {
+
+                    val y = buttonList.get(i).y
+                    if(y < 557  && y.toInt() != 450)
+                    {
+                        scane_switcher = 1
+                    }
+                }
+
+                if (scane_switcher == 1) {
+                    sceneContainer.changeTo ({ Scene2() })
+                    scane_switcher = 0
+                }
 
                 delay(delayTime)
 
@@ -243,6 +289,9 @@ class MyScene : Scene() {
                     .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
+
+                buttonList.add((alp))
+
             }
         }
     }
