@@ -19,6 +19,7 @@ import kotlinx.coroutines.*
 import org.jbox2d.dynamics.*
 import java.io.*
 import kotlin.concurrent.*
+import kotlin.math.abs
 import kotlin.random.Random
 
 var scane_switcher = 0
@@ -257,14 +258,6 @@ class MyScene : Scene() {
             while(true) {
 
 
-                for (i in 0 until buttonList.size ) {
-
-                    val y = buttonList.get(i).y
-                    if(y < 557  && y.toInt() != 450)
-                    {
-                        scane_switcher = 1
-                    }
-                }
 
                 if (scane_switcher == 1) {
                     sceneContainer.changeTo ({ Scene2() })
@@ -289,6 +282,18 @@ class MyScene : Scene() {
                     .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
+
+                for (j in 0 until buttonList.size ) {
+
+                    val y = buttonList.get(j).y
+                    if(y < 600  && y.toInt() != 450)
+                    {
+                        if( abs(13+ i * 63 - buttonList.get(j).x) < 30  )
+                        {
+                            scane_switcher = 1
+                        }
+                    }
+                }
 
                 buttonList.add((alp))
 
