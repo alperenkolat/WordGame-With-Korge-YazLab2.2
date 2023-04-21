@@ -43,8 +43,8 @@ class Scene2 : Scene() {
         scoreText = text("84", textSize = 32.0).centerOn(bgScore)
 
 
-         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
-             .xy(125, 600)
+        text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
+            .xy(125, 600)
 
 
     }
@@ -103,8 +103,10 @@ class MyScene : Scene() {
         val charr = "ABCDEFGHIJKLMNOPRSTUVYZÇĞİÖŞÜ"
         val charrList = charr.split("").filter { it.isNotEmpty() }.toList() as ArrayList<String>
         var falseCount= 0
+        var search_flag = 0
 
         val buttonList = arrayListOf<UIButton>()
+        val screen_butons = arrayListOf<UIButton>()
         charrList.shuffle()
         solidRect(512, 50, Colors.DARKGOLDENROD).position(0, 1050).registerBodyWithFixture(
             type = BodyType.STATIC,
@@ -167,8 +169,16 @@ class MyScene : Scene() {
                     if (line.equals(c_text))
                     {
                         calculateWordPoints(contentInput.joinToString(separator = ""))
+                        search_flag = 1
                     }
                 }
+
+                if(search_flag == 0)
+                {
+                    falseCount += 1
+                }
+                search_flag = 0
+
 
 
                 if(contentInput.joinToString(separator = "")=="DD"){//??
@@ -247,7 +257,7 @@ class MyScene : Scene() {
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
 
-                buttonList.add(alp)
+                screen_butons.add(alp)
 
             }}
 
@@ -256,6 +266,7 @@ class MyScene : Scene() {
 
 
             while(true) {
+
 
 
 
@@ -295,7 +306,7 @@ class MyScene : Scene() {
                     }
                 }
 
-                buttonList.add((alp))
+                screen_butons.add(alp)
 
             }
         }
