@@ -102,6 +102,14 @@ class MyScene : Scene() {
         val topIndent = 150.0
         val charr = "ABCDEFGHIJKLMNOPRSTUVYZÇĞİÖŞÜ"
         val charrList = charr.split("").filter { it.isNotEmpty() }.toList() as ArrayList<String>
+
+        val vovels = "AEIİOÖUÜ"
+        val consonants = "BCÇDFGĞHJKLMNPRSŞTVYZ"
+        val vovels_array = vovels.split("").filter { it.isNotEmpty() }.toList() as ArrayList<String>
+        val consonants_array = consonants.split("").filter { it.isNotEmpty() }.toList() as ArrayList<String>
+        var char_rate = 1
+        var button_text = "A"
+
         var falseCount= 0
         var search_flag = 0
 
@@ -240,14 +248,31 @@ class MyScene : Scene() {
 
         for (j in 0..2){
             for (i in 0..7) {
-                val  charRand = Random.nextInt(0,charrList.size)
-                val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
+
+                //val  charRand = Random.nextInt(0,charrList.size)
+                if(char_rate % 2 == 0)
+                {
+                    val  charRand = Random.nextInt(0,vovels_array.size)
+                     button_text = vovels_array[charRand]
+                }
+                else
+                {
+                    val  charRand = Random.nextInt(0,consonants_array.size)
+                    button_text = consonants_array[charRand]
+                    if(char_rate == 5)
+                    {
+                        char_rate = 1
+                    }
+                }
+                char_rate += 1
+
+                val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
                     onClick {
 
-                        println(charrList[charRand])
-                        UpdateContent(charrList[charRand])
+                        println(button_text)
+                        UpdateContent(button_text)
                         buttonList.add(this)
                         this.colorMul=Colors.WHITE
                     }
@@ -277,14 +302,31 @@ class MyScene : Scene() {
 
                 delay(delayTime)
 
-                val  charRand = Random.nextInt(0,charrList.size)
+                //val  charRand = Random.nextInt(0,charrList.size)
+
+                if(char_rate % 2 == 0)
+                {
+                    val  charRand = Random.nextInt(0,vovels_array.size)
+                    button_text = vovels_array[charRand]
+                }
+                else
+                {
+                    val  charRand = Random.nextInt(0,consonants_array.size)
+                    button_text = consonants_array[charRand]
+                    if(char_rate == 5)
+                    {
+                        char_rate = 1
+                    }
+                }
+                char_rate += 1
+
                 val i = Random.nextInt(0, 8)
-                val alp=  uiButton(width = boxSize, boxSize, text = charrList[charRand]) {
+                val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
                     onPress {
-                        println(charrList[charRand])
-                        UpdateContent(charrList[charRand])
+                        println(button_text)
+                        UpdateContent(button_text)
                         buttonList.add(this)
                         this.colorMul=Colors.WHITE
                     }
