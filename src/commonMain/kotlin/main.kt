@@ -8,11 +8,15 @@ import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.ui.*
 import com.soywiz.korge.view.*
+import com.soywiz.korgw.win32.Win32KmlGl.Companion.viewport
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.font.*
 import com.soywiz.korim.paint.*
 import com.soywiz.korio.dynamic.*
+import com.soywiz.korio.file.VfsFile
+import com.soywiz.korio.file.VfsOpenMode
 import com.soywiz.korio.file.std.*
+import com.soywiz.korma.geom.ScaleMode
 import com.soywiz.korma.geom.degrees
 import com.soywiz.korma.geom.vector.*
 import com.soywiz.korma.random.*
@@ -26,10 +30,14 @@ import kotlin.concurrent.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import com.soywiz.korio.file.std.resourcesVfs
+import com.soywiz.korio.stream.AsyncStream
+
 
 var scane_switcher = 0
 lateinit var sceneContainer: SceneContainer
-
+var score1 = 0
+lateinit var scores : Sequence<String>
 suspend fun main() = Korge(width = 512, height =1280, bgcolor = Colors["#2b2b2b"]) {
     sceneContainer = sceneContainer()
     sceneContainer.changeTo({ MyScene() })
@@ -45,11 +53,19 @@ class Scene2 : Scene() {
         val bgScore= circle(80.0,  Colors["#75888c"]) {
             position(180.0, 370.0)
         }
-        scoreText = text("84", textSize = 32.0).centerOn(bgScore)
+        scoreText = text("$score1", textSize = 32.0).centerOn(bgScore)
 
 
         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
             .xy(125, 600)
+
+        val sortedScores = scores.sortedDescending().take(5)
+
+        for ((index, score) in sortedScores.withIndex()) {
+            text("${index+1}. Sıra    $score   Puan", textSize = 30.0, color = Colors.WHITE, font = font)
+                .xy(125, 700 + index * 50)
+        }
+
 
     }
 
@@ -73,9 +89,10 @@ class MyScene : Scene() {
     lateinit var scoreText: Text // skor kutusunu tutacak değişken
     lateinit var InputText: Text
     var contText = "beyhan ;)"
-    var score1 = 0 // skoru tutacak değişken
+    //var score1 = 0 // skoru tutacak değişken
     val contentInput = ArrayList<String>()
     var delayTime = 5000L
+
     override suspend fun SContainer.sceneInit() {
 
         val font = resourcesVfs["BebasNeue-Regular.ttf"].readTtfFont()
@@ -111,6 +128,8 @@ class MyScene : Scene() {
 
         val file = resourcesVfs["word_list.txt"]
         val lines = file.readLines()
+        val scoreFile = resourcesVfs["scores.txt"]
+        scores = scoreFile.readLines()
 
 
         val random1 = Random(0L)
@@ -191,11 +210,12 @@ class MyScene : Scene() {
                                 btn2.button.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                             }
                         }
-                        contentInput.removeAt(0)
+
 
                     }
                 }
 
+                contentInput.clear()
                 InputText.text = "${contentInput.joinToString(separator = "")}"
 
             }
@@ -347,8 +367,7 @@ class MyScene : Scene() {
                             }
 
                             contentInput.clear()
-                            UpdateContent("")
-
+                            InputText.text = "${contentInput.joinToString(separator = "")}"
 
                         }}
                 }
@@ -438,6 +457,11 @@ class MyScene : Scene() {
 
 
                 if (scane_switcher == 1) {
+
+
+                    scores += "$score1"
+                    scoreFile.writeString(scores.joinToString("\n"))
+
                     scane_switcher = 0
                     sceneContainer.changeTo ({ Scene2() })
                     break
