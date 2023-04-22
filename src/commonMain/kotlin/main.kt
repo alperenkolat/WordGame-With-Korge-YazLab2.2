@@ -1,3 +1,4 @@
+import com.soywiz.klogger.AnsiEscape
 import com.soywiz.korev.*
 import com.soywiz.korge.Korge
 import com.soywiz.korge.box2d.*
@@ -15,8 +16,11 @@ import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.degrees
 import com.soywiz.korma.geom.vector.*
 import com.soywiz.korma.random.*
+import com.soywiz.korui.UiButton
 import kotlinx.coroutines.*
+import org.jbox2d.callbacks.ContactListener
 import org.jbox2d.dynamics.*
+import org.jbox2d.dynamics.contacts.Contact
 import java.io.*
 import kotlin.concurrent.*
 import kotlin.math.abs
@@ -48,44 +52,59 @@ class Scene2 : Scene() {
 
     }
 
+    /*override suspend fun SContainer.sceneMain() {
+
+        GlobalScope.launch {
+
+
+        }
+    }*/
+
+
 }
 
 
 
 
 class MyScene : Scene() {
-    val destiny=10.0
-    val boxSize=49.0
+    val destiny = 10.0
+    val boxSize = 49.0
     lateinit var scoreText: Text // skor kutusunu tutacak değişken
-    lateinit var InputText:Text
-    var contText="beyhan ;)"
+    lateinit var InputText: Text
+    var contText = "beyhan ;)"
     var score1 = 0 // skoru tutacak değişken
-    val contentInput=ArrayList<String>()
-    var delayTime=5000L
+    val contentInput = ArrayList<String>()
+    var delayTime = 5000L
     override suspend fun SContainer.sceneInit() {
 
         val font = resourcesVfs["BebasNeue-Regular.ttf"].readTtfFont()
         graphics {
-            it.position(0.0,350.0)
+            it.position(0.0, 350.0)
             fill(Colors["#474748"]) {
                 roundRect(0.0, 0.0, 512.0, 200.0, 5.0)
             }
         }
-        val bgScore= circle(80.0,  Colors["#75888c"]) {
+        val bgScore = circle(80.0, Colors["#75888c"]) {
             position(180.0, 370.0)
         }
         scoreText = text("$score1", textSize = 32.0).centerOn(bgScore)
 
-        val bgInput=solidRect(412, 50, Colors.DARKGOLDENROD).position(0, 1050)
+        val bgInput = solidRect(412, 50, Colors.DARKGOLDENROD).position(0, 1050)
             .registerBodyWithFixture(
                 type = BodyType.STATIC,
                 friction = 0.99
             )
-        InputText =text("$contText", textSize = 30.0,Colors.WHITE,font)
+        InputText = text("$contText", textSize = 30.0, Colors.WHITE, font)
             .centerOn(bgInput)
 
 
     }
+
+
+
+
+
+
 
     override suspend fun SContainer.sceneMain() {
 
@@ -238,20 +257,41 @@ class MyScene : Scene() {
                             )
 
                         }}
-                }else{
+                }else{ // Doğruysa buraya düşecek
                     if (buttonList.isNotEmpty()) {
                         // Listenin son elemanını sil
                         for (k in 0..buttonList.size-1){
                             val btn = buttonList.removeAt(buttonList.size - 1)
-                            btn.position(440.0,4004.0)
+                            val btn2 =  allButton.find { it.button == btn }
 
-                            screen_butons.remove(btn)
-                            allButton.find { it.button == btn }?.let { // null değilse blok çalışır
-                                allButton.remove(it)
+                            if (btn2 != null) {
+                                if(btn2.isIce != 2 && btn2.transformIce != 2) // Normal blok veya kullanılmış buz blok
+                                {
+                                    btn.position(440.0,4004.0)
+                                    screen_butons.remove(btn)
+                                    allButton.remove(btn2)
+                                }
+                                else
+                                {
+                                    if(btn2.isIce == 2)
+                                    {
+                                        btn2.isIce = 1
+                                        btn2.button.colorMul = Colors.BLUE
+                                        btn2.isClicked = 0
+                                    }
+                                    else
+                                    {
+                                        btn2.transformIce = 1
+                                        btn2.button.colorMul = Colors.BLUE
+                                        btn2.isClicked = 0
+                                    }
+                                }
                             }
 
                             contentInput.clear()
                             UpdateContent("")
+
+
                         }}
                 }
             }
@@ -294,22 +334,21 @@ class MyScene : Scene() {
                             this.colorMul=Colors.WHITE
                             allButton.find{it.button == this}!!.isClicked  += 1
                         }
-                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == true)
-                        {
-                            println(this.text)
-                            UpdateContent(this.text)
-                            buttonList.add(this)
-                            this.colorMul=Colors.WHITE
-                            allButton.find{it.button == this}!!.isClicked  += 1
-
-                        }
                         else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
                         {
                             val index = buttonList.indexOf(this)
                             contentInput.removeAt(index)
                             InputText.text = "${contentInput.joinToString(separator = "")}"
                             buttonList.remove(this)
-                            this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            if(allButton.find{it.button == this}!!.isIce != 0 ||  allButton.find{it.button == this}!!.transformIce != 0)
+                            {
+                                this.colorMul = Colors.BLUE
+
+                            }
+                            else
+                            {
+                                this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            }
                             allButton.find{it.button == this}!!.isClicked  -= 1
                         }
 
@@ -322,7 +361,7 @@ class MyScene : Scene() {
                     .also { it.textFont =font }
 
                 //screen_butons.add(alp) // gecikme yarattığı için yoruma alındı
-                allButton.add(MyObject(alp, 0, 0, 0))
+                allButton.add(MyObject(alp, 0, 0, 0,0))
 
 
             }}
@@ -342,7 +381,7 @@ class MyScene : Scene() {
                     break
                 }
 
-                delay(delayTime)
+                delay(delayTime-2000L)
 
                 //val  charRand = Random.nextInt(0,charrList.size)
 
@@ -363,6 +402,8 @@ class MyScene : Scene() {
                 char_rate += 1
 
                 val i = Random.nextInt(0, 8)
+                val ice = Random.nextInt(0, 4)
+
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
@@ -378,26 +419,32 @@ class MyScene : Scene() {
                             this.colorMul=Colors.WHITE
                             allButton.find{it.button == this}!!.isClicked  += 1
                         }
-                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == true)
-                        {
-                            println(this.text)
-                            UpdateContent(this.text)
-                            buttonList.add(this)
-                            this.colorMul=Colors.WHITE
-                            allButton.find{it.button == this}!!.isClicked  += 1
-
-                        }
                         else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
                         {
                             val index = buttonList.indexOf(this)
                             contentInput.removeAt(index)
                             InputText.text = "${contentInput.joinToString(separator = "")}"
                             buttonList.remove(this)
-                            this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            if(allButton.find{it.button == this}!!.isIce != 0 ||  allButton.find{it.button == this}!!.transformIce != 0)
+                            {
+                                this.colorMul = Colors.BLUE
+
+                            }
+                            else
+                            {
+                                this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            }
                             allButton.find{it.button == this}!!.isClicked  -= 1
                         }
 
+
                     }
+
+                    /*
+                    onCollisionShape { collisionEvent ->
+                            this.colorMul = Colors.RED
+                    }*/
+
 
                 }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                 }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
@@ -418,8 +465,33 @@ class MyScene : Scene() {
                     }
                 }
 
+
+
+
+                val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
+                    .minByOrNull { it.button.y }
+
+
+                if(ice == 1)
+                {
+                    allButton.add(MyObject(alp, 0, 2, 0,2))
+                    alp.colorMul = Colors.BLUE
+                }
+                else
+                {
+                    allButton.add(MyObject(alp, 0, 0, 0,0))
+                }
+
+
+                delay(delayTime-3000L)
+
+                if ((targetButton != null) && (ice == 1 || alp.colorMul == Colors.BLUE)) {
+                    targetButton.transformIce = 2
+                    targetButton.button.colorMul = Colors.BLUE
+                }
+
                 screen_butons.add(alp)
-                allButton.add(MyObject(alp, 0, 0, 0))
+
 
             }
         }
@@ -500,5 +572,5 @@ class MyScene : Scene() {
 
 }
 
-class MyObject(val button: UIButton, var isClicked: Int, var isIce: Int, var value3: Int)
+class MyObject(val button: UIButton, var isClicked: Int, var isIce: Int, var transformIce: Int, var value: Int)
 
