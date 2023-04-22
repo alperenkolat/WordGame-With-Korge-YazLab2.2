@@ -24,6 +24,7 @@ import org.jbox2d.dynamics.contacts.Contact
 import java.io.*
 import kotlin.concurrent.*
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 var scane_switcher = 0
@@ -174,9 +175,23 @@ class MyScene : Scene() {
                     for (k in 0..buttonList.size-1){
 
                         val btn = buttonList.removeAt(buttonList.size - 1)
-                        allButton.find{it.button == btn}!!.isClicked  -= 1
+                        val btn2 = allButton.find{it.button == btn}
 
-                        btn.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                        //allButton.find{it.button == btn}!!.isClicked  -= 1
+
+                        if (btn2 != null) {
+                            btn2.isClicked  -= 1
+                            if(btn2.isIce != 0) {
+                                btn2.button.colorMul = Colors.BLUE
+                            } else if (btn2.transformIce != 0) {
+                                btn2.button.colorMul = Colors.DEEPSKYBLUE
+                            }
+                            else
+                            {
+                                btn2.button.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            }
+                        }
+
                     }
                 }
                 contentInput.clear()
@@ -267,9 +282,47 @@ class MyScene : Scene() {
                             if (btn2 != null) {
                                 if(btn2.isIce != 2 && btn2.transformIce != 2) // Normal blok veya kullanılmış buz blok
                                 {
+                                    if(btn2.transformIce == 1) // Buz yenilerini etkileyecek
+                                    {
+                                        val i = ((btn2.button.x - 13) / (63)).coerceIn(0.0, 7.0).roundToInt()
+
+                                        var targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
+
+
+                                        targetButton = targetButton.sortedBy { it.button.y }
+
+                                        val index = targetButton.indexOf(btn2)
+
+                                        if (index + 1  < targetButton.size)
+                                        {
+                                            if(targetButton.get(index-1).isIce != 0)
+                                            {
+                                                if(targetButton.get(index+1).isIce == 0 && targetButton.get(index+1).transformIce == 0)
+                                                {
+                                                    targetButton.get(index+1).transformIce= 2
+                                                    targetButton.get(index+1).button.colorMul = Colors.DEEPSKYBLUE
+                                                }
+                                            }
+                                        }
+                                        if(index - 1 >= 0)
+                                        {
+                                            if(targetButton.get(index+1).isIce != 0)
+                                            {
+                                                if(targetButton.get(index-1).isIce != 0 && targetButton.get(index-2).transformIce != 0)
+                                                {
+                                                    targetButton.get(index-1).transformIce= 2
+                                                    targetButton.get(index-1).button.colorMul = Colors.DEEPSKYBLUE
+                                                }
+                                            }
+                                        }
+
+
+                                    }
+
                                     btn.position(440.0,4004.0)
                                     screen_butons.remove(btn)
                                     allButton.remove(btn2)
+
                                 }
                                 else
                                 {
@@ -282,7 +335,7 @@ class MyScene : Scene() {
                                     else
                                     {
                                         btn2.transformIce = 1
-                                        btn2.button.colorMul = Colors.BLUE
+                                        btn2.button.colorMul = Colors.DEEPSKYBLUE
                                         btn2.isClicked = 0
                                     }
                                 }
@@ -340,10 +393,14 @@ class MyScene : Scene() {
                             contentInput.removeAt(index)
                             InputText.text = "${contentInput.joinToString(separator = "")}"
                             buttonList.remove(this)
-                            if(allButton.find{it.button == this}!!.isIce != 0 ||  allButton.find{it.button == this}!!.transformIce != 0)
+                            if(allButton.find{it.button == this}!!.isIce != 0)
                             {
                                 this.colorMul = Colors.BLUE
 
+                            }
+                            else if(allButton.find{it.button == this}!!.transformIce != 0)
+                            {
+                                this.colorMul = Colors.DEEPSKYBLUE
                             }
                             else
                             {
@@ -402,7 +459,7 @@ class MyScene : Scene() {
                 char_rate += 1
 
                 val i = Random.nextInt(0, 8)
-                val ice = Random.nextInt(0, 4)
+                val ice = Random.nextInt(0, 3)
 
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
@@ -425,10 +482,14 @@ class MyScene : Scene() {
                             contentInput.removeAt(index)
                             InputText.text = "${contentInput.joinToString(separator = "")}"
                             buttonList.remove(this)
-                            if(allButton.find{it.button == this}!!.isIce != 0 ||  allButton.find{it.button == this}!!.transformIce != 0)
+                            if(allButton.find{it.button == this}!!.isIce != 0)
                             {
                                 this.colorMul = Colors.BLUE
 
+                            }
+                            else if(allButton.find{it.button == this}!!.transformIce != 0)
+                            {
+                                this.colorMul = Colors.DEEPSKYBLUE
                             }
                             else
                             {
@@ -485,9 +546,16 @@ class MyScene : Scene() {
 
                 delay(delayTime-3000L)
 
-                if ((targetButton != null) && (ice == 1 || alp.colorMul == Colors.BLUE)) {
+                if ((targetButton != null) && (ice == 1) && targetButton.isIce == 0 ) {
                     targetButton.transformIce = 2
-                    targetButton.button.colorMul = Colors.BLUE
+                    targetButton.button.colorMul = Colors.DEEPSKYBLUE
+                }
+                else if (targetButton != null) {
+                    if(targetButton.isIce != 0 && ice == 0) {
+                        allButton.find{it.button == alp}!!.transformIce  = 2
+                        allButton.find{it.button == alp}!!.button.colorMul = Colors.DEEPSKYBLUE
+
+                    }
                 }
 
                 screen_butons.add(alp)
