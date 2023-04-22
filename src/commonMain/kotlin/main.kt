@@ -46,7 +46,6 @@ class Scene2 : Scene() {
         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
             .xy(125, 600)
 
-
     }
 
 }
@@ -115,6 +114,9 @@ class MyScene : Scene() {
 
         val buttonList = arrayListOf<UIButton>()
         val screen_butons = arrayListOf<UIButton>()
+        val allButton = ArrayList<MyObject>()
+
+
         charrList.shuffle()
         solidRect(512, 50, Colors.DARKGOLDENROD).position(0, 1050).registerBodyWithFixture(
             type = BodyType.STATIC,
@@ -151,9 +153,13 @@ class MyScene : Scene() {
                 if (buttonList.isNotEmpty()) {
                     // Listenin son elemanını sil
                     for (k in 0..buttonList.size-1){
+
                         val btn = buttonList.removeAt(buttonList.size - 1)
+                        allButton.find{it.button == btn}!!.isClicked  -= 1
+
                         btn.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
-                    }}
+                    }
+                }
                 contentInput.clear()
                 UpdateContent("")
                 println(contentInput.joinToString(separator = ""))
@@ -171,8 +177,9 @@ class MyScene : Scene() {
             position(410, 1045)
             onPress {
 
-                val c_text = contentInput.joinToString(separator = "").lowercase()
+                //val c_text = contentInput.joinToString(separator = "").lowercase()
 
+                val c_text = turkishLowercase(contentInput.joinToString(separator = ""))
                 for (line in lines) {
                     if (line.equals(c_text))
                     {
@@ -205,7 +212,8 @@ class MyScene : Scene() {
                                     UpdateContent(charrList[charRand])
                                     buttonList.add(this)
                                     this.colorMul=Colors.WHITE
-                                    val c_text = contentInput.joinToString(separator = "").lowercase()
+
+                                    val c_text = turkishLowercase(contentInput.joinToString(separator = ""))
 
                                     for (line in lines) {
                                         if (line.equals(c_text))
@@ -236,6 +244,12 @@ class MyScene : Scene() {
                         for (k in 0..buttonList.size-1){
                             val btn = buttonList.removeAt(buttonList.size - 1)
                             btn.position(440.0,4004.0)
+
+                            screen_butons.remove(btn)
+                            allButton.find { it.button == btn }?.let { // null değilse blok çalışır
+                                allButton.remove(it)
+                            }
+
                             contentInput.clear()
                             UpdateContent("")
                         }}
@@ -253,7 +267,7 @@ class MyScene : Scene() {
                 if(char_rate % 2 == 0)
                 {
                     val  charRand = Random.nextInt(0,vovels_array.size)
-                     button_text = vovels_array[charRand]
+                    button_text = vovels_array[charRand]
                 }
                 else
                 {
@@ -268,21 +282,48 @@ class MyScene : Scene() {
 
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
-
+                    var isClicked = 0
+                    var isIce = false
                     onClick {
 
-                        println(button_text)
-                        UpdateContent(button_text)
-                        buttonList.add(this)
-                        this.colorMul=Colors.WHITE
+                        if(allButton.find{it.button == this}?.isClicked == 0 && !isIce)
+                        {
+                            println(this.text)
+                            UpdateContent(this.text)
+                            buttonList.add(this)
+                            this.colorMul=Colors.WHITE
+                            allButton.find{it.button == this}!!.isClicked  += 1
+                        }
+                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == true)
+                        {
+                            println(this.text)
+                            UpdateContent(this.text)
+                            buttonList.add(this)
+                            this.colorMul=Colors.WHITE
+                            allButton.find{it.button == this}!!.isClicked  += 1
+
+                        }
+                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
+                        {
+                            val index = buttonList.indexOf(this)
+                            contentInput.removeAt(index)
+                            InputText.text = "${contentInput.joinToString(separator = "")}"
+                            buttonList.remove(this)
+                            this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            allButton.find{it.button == this}!!.isClicked  -= 1
+                        }
+
                     }
-                }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+
+                }.also {it.colorMul =  random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                 }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
                     .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
 
-                screen_butons.add(alp)
+                //screen_butons.add(alp) // gecikme yarattığı için yoruma alındı
+                allButton.add(MyObject(alp, 0, 0, 0))
+
 
             }}
 
@@ -296,8 +337,9 @@ class MyScene : Scene() {
 
 
                 if (scane_switcher == 1) {
-                    sceneContainer.changeTo ({ Scene2() })
                     scane_switcher = 0
+                    sceneContainer.changeTo ({ Scene2() })
+                    break
                 }
 
                 delay(delayTime)
@@ -324,31 +366,60 @@ class MyScene : Scene() {
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
 
-                    onPress {
-                        println(button_text)
-                        UpdateContent(button_text)
-                        buttonList.add(this)
-                        this.colorMul=Colors.WHITE
+                    var isClicked = 0
+                    var isIce = false
+                    onClick {
+
+                        if(allButton.find{it.button == this}?.isClicked == 0 && !isIce)
+                        {
+                            println(this.text)
+                            UpdateContent(this.text)
+                            buttonList.add(this)
+                            this.colorMul=Colors.WHITE
+                            allButton.find{it.button == this}!!.isClicked  += 1
+                        }
+                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == true)
+                        {
+                            println(this.text)
+                            UpdateContent(this.text)
+                            buttonList.add(this)
+                            this.colorMul=Colors.WHITE
+                            allButton.find{it.button == this}!!.isClicked  += 1
+
+                        }
+                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
+                        {
+                            val index = buttonList.indexOf(this)
+                            contentInput.removeAt(index)
+                            InputText.text = "${contentInput.joinToString(separator = "")}"
+                            buttonList.remove(this)
+                            this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                            allButton.find{it.button == this}!!.isClicked  -= 1
+                        }
+
                     }
+
                 }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                 }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
                     .also { it.textColor = Colors.AZURE }
                     .also { it.textSize =cellSize/2 }
                     .also { it.textFont =font }
 
-                for (j in 0 until buttonList.size ) {
 
-                    val y = buttonList.get(j).y
-                    if(y < 600  && y.toInt() != 450)
-                    {
-                        if( abs(13+ i * 63 - buttonList.get(j).x) < 30  )
-                        {
+
+                for (j in screen_butons.size - 1 downTo 0) {
+                    val y = screen_butons[j].y
+                    if (y < 600 && y.toInt() != 450) {
+                        if (abs(13 + i * 63 - screen_butons[j].x) < 30) {
                             scane_switcher = 1
                         }
+                    } else if (y > 650 && y.toInt() != 450) {
+                        screen_butons.removeAt(j)
                     }
                 }
 
                 screen_butons.add(alp)
+                allButton.add(MyObject(alp, 0, 0, 0))
 
             }
         }
@@ -414,4 +485,20 @@ class MyScene : Scene() {
         updateScore(points)
     }
 
+    fun turkishLowercase(s: String): String {
+        val builder = StringBuilder()
+        for (c in s) {
+            when (c) {
+                'I' -> builder.append('ı')
+                'İ' -> builder.append('i')
+                else -> builder.append(c.lowercase())
+            }
+        }
+        return builder.toString()
+    }
+
+
 }
+
+class MyObject(val button: UIButton, var isClicked: Int, var isIce: Int, var value3: Int)
+
