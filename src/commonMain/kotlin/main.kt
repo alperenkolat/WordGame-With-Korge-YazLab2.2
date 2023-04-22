@@ -191,12 +191,13 @@ class MyScene : Scene() {
                                 btn2.button.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                             }
                         }
+                        contentInput.removeAt(0)
 
                     }
                 }
-                contentInput.clear()
-                UpdateContent("")
-                println(contentInput.joinToString(separator = ""))
+
+                InputText.text = "${contentInput.joinToString(separator = "")}"
+
             }
 
 
