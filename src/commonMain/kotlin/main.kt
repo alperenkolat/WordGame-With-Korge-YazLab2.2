@@ -295,20 +295,24 @@ class MyScene : Scene() {
 
                                         if (index + 1  < targetButton.size)
                                         {
-                                            if(targetButton.get(index-1).isIce != 0)
+                                            if(index - 1 >= 0)
                                             {
-                                                if(targetButton.get(index+1).isIce == 0 && targetButton.get(index+1).transformIce == 0)
+                                                if(targetButton.get(index-1).isIce != 0)
                                                 {
-                                                    targetButton.get(index+1).transformIce= 2
-                                                    targetButton.get(index+1).button.colorMul = Colors.DEEPSKYBLUE
+                                                    if(targetButton.get(index+1).isIce == 0 && targetButton.get(index+1).transformIce == 0)
+                                                    {
+                                                        targetButton.get(index+1).transformIce= 2
+                                                        targetButton.get(index+1).button.colorMul = Colors.DEEPSKYBLUE
+                                                    }
                                                 }
                                             }
+
                                         }
-                                        if(index - 1 >= 0)
+                                        if(index - 1 >= 0 && (index + 1  < targetButton.size))
                                         {
                                             if(targetButton.get(index+1).isIce != 0)
                                             {
-                                                if(targetButton.get(index-1).isIce != 0 && targetButton.get(index-2).transformIce != 0)
+                                                if(targetButton.get(index-1).isIce == 0 && targetButton.get(index-1).transformIce == 0)
                                                 {
                                                     targetButton.get(index-1).transformIce= 2
                                                     targetButton.get(index-1).button.colorMul = Colors.DEEPSKYBLUE
@@ -527,8 +531,6 @@ class MyScene : Scene() {
                 }
 
 
-
-
                 val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
                     .minByOrNull { it.button.y }
 
@@ -551,7 +553,7 @@ class MyScene : Scene() {
                     targetButton.button.colorMul = Colors.DEEPSKYBLUE
                 }
                 else if (targetButton != null) {
-                    if(targetButton.isIce != 0 && ice == 0) {
+                    if(targetButton.isIce != 0 && ice != 1) {
                         allButton.find{it.button == alp}!!.transformIce  = 2
                         allButton.find{it.button == alp}!!.button.colorMul = Colors.DEEPSKYBLUE
 
