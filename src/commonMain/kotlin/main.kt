@@ -43,6 +43,10 @@ class Scene2 : Scene() {
         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
             .xy(125, 600)
 
+        val scoreFile = resourcesVfs["scores.txt"]
+        scores = scoreFile.readLines()
+        scores += "$score1"
+
         val sortedScores = scores.sortedDescending().take(5)
 
         for ((index, score) in sortedScores.withIndex()) {
@@ -50,7 +54,7 @@ class Scene2 : Scene() {
                 .xy(125, 700 + index * 50)
         }
 
-        val scoreFile = resourcesVfs["scores.txt"]
+
 
         withContext(Dispatchers.IO) {
             scoreFile.writeString(scores.joinToString("\n"))
@@ -118,8 +122,9 @@ class MyScene : Scene() {
 
         val file = resourcesVfs["word_list.txt"]
         val lines = file.readLines()
-        val scoreFile = resourcesVfs["scores.txt"]
-        scores = scoreFile.readLines()
+
+        //val scoreFile = resourcesVfs["scores.txt"]
+        //scores = scoreFile.readLines()
 
 
         val random1 = Random(0L)
@@ -389,11 +394,10 @@ class MyScene : Scene() {
 
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
-                    var isClicked = 0
-                    var isIce = false
+
                     onClick {
 
-                        if(allButton.find{it.button == this}?.isClicked == 0 && !isIce)
+                        if(allButton.find{it.button == this}?.isClicked == 0 )
                         {
                             println(this.text)
                             UpdateContent(this.text)
@@ -401,7 +405,7 @@ class MyScene : Scene() {
                             this.colorMul=Colors.WHITE
                             allButton.find{it.button == this}!!.isClicked  += 1
                         }
-                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
+                        else if(allButton.find{it.button == this}?.isClicked  == 1 )
                         {
                             val index = buttonList.indexOf(this)
                             contentInput.removeAt(index)
@@ -441,143 +445,132 @@ class MyScene : Scene() {
         GlobalScope.launch {
 
 
-            while(true) {
+            try {
+                while (true) {
 
 
+                    if (scane_switcher == 1) {
 
+                        //scores += "$score1"
 
-                if (scane_switcher == 1) {
-
-                    scores += "$score1"
-
-
-                    //scoreFile.writeString(scores.joinToString("\n"))
-
-                    scane_switcher = 0
-                    sceneContainer.changeTo ({ Scene2() })
-                    break
-                }
-
-                delay(delayTime-2000L)
-
-                //val  charRand = Random.nextInt(0,charrList.size)
-
-                if(char_rate % 2 == 0)
-                {
-                    val  charRand = Random.nextInt(0,vovels_array.size)
-                    button_text = vovels_array[charRand]
-                }
-                else
-                {
-                    val  charRand = Random.nextInt(0,consonants_array.size)
-                    button_text = consonants_array[charRand]
-                    if(char_rate == 5)
-                    {
-                        char_rate = 1
+                        scane_switcher = 0
+                        sceneContainer.changeTo({ Scene2() })
+                        break
                     }
-                }
-                char_rate += 1
 
-                val i = Random.nextInt(0, 8)
-                val ice = Random.nextInt(0, 5)
+                    delay(delayTime - 2000L)
 
-                val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
-                    position(13+ i * 63, 450).rotation(0.degrees)
+                    //val  charRand = Random.nextInt(0,charrList.size)
 
-                    var isClicked = 0
-                    var isIce = false
-                    onClick {
-
-                        if(allButton.find{it.button == this}?.isClicked == 0 && !isIce)
-                        {
-                            println(this.text)
-                            UpdateContent(this.text)
-                            buttonList.add(this)
-                            this.colorMul=Colors.WHITE
-                            allButton.find{it.button == this}!!.isClicked  += 1
+                    if (char_rate % 2 == 0) {
+                        val charRand = Random.nextInt(0, vovels_array.size)
+                        button_text = vovels_array[charRand]
+                    } else {
+                        val charRand = Random.nextInt(0, consonants_array.size)
+                        button_text = consonants_array[charRand]
+                        if (char_rate == 5) {
+                            char_rate = 1
                         }
-                        else if(allButton.find{it.button == this}?.isClicked  == 1 && isIce == false)
-                        {
-                            val index = buttonList.indexOf(this)
-                            contentInput.removeAt(index)
-                            InputText.text = "${contentInput.joinToString(separator = "")}"
-                            buttonList.remove(this)
-                            if(allButton.find{it.button == this}!!.isIce != 0)
-                            {
-                                this.colorMul = Colors.BLUE
+                    }
+                    char_rate += 1
 
+                    val i = Random.nextInt(0, 8)
+                    val ice = Random.nextInt(0, 5)
+
+                    val alp = uiButton(width = boxSize, boxSize, text = button_text) {
+                        position(13 + i * 63, 450).rotation(0.degrees)
+
+                        onClick {
+
+                            if (allButton.find { it.button == this }?.isClicked == 0) {
+                                println(this.text)
+                                UpdateContent(this.text)
+                                buttonList.add(this)
+                                this.colorMul = Colors.WHITE
+                                allButton.find { it.button == this }!!.isClicked += 1
+                            } else if (allButton.find { it.button == this }?.isClicked == 1) {
+                                val index = buttonList.indexOf(this)
+                                contentInput.removeAt(index)
+                                InputText.text = "${contentInput.joinToString(separator = "")}"
+                                buttonList.remove(this)
+                                if (allButton.find { it.button == this }!!.isIce != 0) {
+                                    this.colorMul = Colors.BLUE
+
+                                } else if (allButton.find { it.button == this }!!.transformIce != 0) {
+                                    this.colorMul = Colors.DEEPSKYBLUE
+                                } else {
+                                    this.colorMul =
+                                        random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                                }
+                                allButton.find { it.button == this }!!.isClicked -= 1
                             }
-                            else if(allButton.find{it.button == this}!!.transformIce != 0)
-                            {
-                                this.colorMul = Colors.DEEPSKYBLUE
-                            }
-                            else
-                            {
-                                this.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
-                            }
-                            allButton.find{it.button == this}!!.isClicked  -= 1
+
+
                         }
 
 
-                    }
+                    }.also {
+                        it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
+                    }.registerBodyWithFixture(
+                        type = BodyType.DYNAMIC,
+                        density = destiny,
+                        friction = 100.0,
+                        angularDamping = 50.0,
+                        gravityScale = 2.0
+                    )
+                        .also { it.textColor = Colors.AZURE }
+                        .also { it.textSize = cellSize / 2 }
+                        .also { it.textFont = font }
 
 
 
-                }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
-                }.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
-                    .also { it.textColor = Colors.AZURE }
-                    .also { it.textSize =cellSize/2 }
-                    .also { it.textFont =font }
-
-
-
-                for (j in screen_butons.size - 1 downTo 0) {
-                    val y = screen_butons[j].y
-                    if (y < 600 && y.toInt() != 450) {
-                        if (abs(13 + i * 63 - screen_butons[j].x) < 30) {
-                            scane_switcher = 1
+                    for (j in screen_butons.size - 1 downTo 0) {
+                        val y = screen_butons[j].y
+                        if (y < 600 && y.toInt() != 450) {
+                            if (abs(13 + i * 63 - screen_butons[j].x) < 30) {
+                                scane_switcher = 1
+                            }
+                        } else if (y > 650 && y.toInt() != 450) {
+                            screen_butons.removeAt(j)
                         }
-                    } else if (y > 650 && y.toInt() != 450) {
-                        screen_butons.removeAt(j)
                     }
-                }
 
 
-                val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
-                    .minByOrNull { it.button.y }
+                    val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
+                        .minByOrNull { it.button.y }
 
 
-                if(ice == 1)
-                {
-                    allButton.add(MyObject(alp, 0, 2, 0,2))
-                    alp.colorMul = Colors.BLUE
-                }
-                else
-                {
-                    allButton.add(MyObject(alp, 0, 0, 0,0))
-                }
-
-
-                delay(delayTime-3000L)
-
-                if ((targetButton != null) && (ice == 1) && targetButton.isIce == 0 ) {
-                    targetButton.transformIce = 2
-                    targetButton.button.colorMul = Colors.DEEPSKYBLUE
-                }
-                else if (targetButton != null) {
-                    if(targetButton.isIce != 0 && ice != 1) {
-                        allButton.find{it.button == alp}!!.transformIce  = 2
-                        allButton.find{it.button == alp}!!.button.colorMul = Colors.DEEPSKYBLUE
-
+                    if (ice == 1) {
+                        allButton.add(MyObject(alp, 0, 2, 0, 2))
+                        alp.colorMul = Colors.BLUE
+                    } else {
+                        allButton.add(MyObject(alp, 0, 0, 0, 0))
                     }
+
+
+                    delay(delayTime - 3000L)
+
+                    if ((targetButton != null) && (ice == 1) && targetButton.isIce == 0) {
+                        targetButton.transformIce = 2
+                        targetButton.button.colorMul = Colors.DEEPSKYBLUE
+                    } else if (targetButton != null) {
+                        if (targetButton.isIce != 0 && ice != 1) {
+                            allButton.find { it.button == alp }!!.transformIce = 2
+                            allButton.find { it.button == alp }!!.button.colorMul = Colors.DEEPSKYBLUE
+
+                        }
+                    }
+
+                    screen_butons.add(alp)
+
+
                 }
 
-                screen_butons.add(alp)
-
+            }catch (e: Exception) {
 
             }
-        }
-    }
+
+        }}
 
 
     fun UpdateContent(newChar: String) {
