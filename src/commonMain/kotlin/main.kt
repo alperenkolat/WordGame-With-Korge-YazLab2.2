@@ -39,6 +39,14 @@ class Scene2 : Scene() {
         }
         scoreText = text("$score1", textSize = 32.0).centerOn(bgScore)
 
+        val  restartButton=  uiButton(width = 125.0, 105.0, text = "YENIDEN BASLAT") {
+            position(200, 1000)
+            onPress {
+                scane_switcher = -1
+            }
+
+        }.also { it.colorMul = Colors.DEEPSKYBLUE }
+
 
         text("Oyun Bitti", textSize = 80.0,Colors.WHITE,font)
             .xy(125, 600)
@@ -47,10 +55,12 @@ class Scene2 : Scene() {
         scores = scoreFile.readLines()
         scores += "$score1"
 
-        val sortedScores = scores.sortedByDescending { it.toInt() }.take(5)
-        println(scores)
+        val sortedScores = scores.filter { it.isNotEmpty() }
+            .sortedByDescending { it.toInt() }
+            .take(5)
+
         for ((index, score) in sortedScores.withIndex()) {
-            text("${index+1}. Sıra    $score   Puan", textSize = 30.0, color = Colors.WHITE, font = font)
+            text("${index+1}. Sıra     ${score}    Puan", textSize = 30.0, color = Colors.WHITE, font = font)
                 .xy(125, 700 + index * 50)
         }
 
@@ -63,13 +73,19 @@ class Scene2 : Scene() {
 
     }
 
-    /*override suspend fun SContainer.sceneMain() {
+    override suspend fun SContainer.sceneMain() {
 
-        GlobalScope.launch {
-
-
+        while (true)
+        {
+            if(scane_switcher == -1)
+            {
+                scane_switcher = 0
+                sceneContainer.changeTo({ MyScene() })
+                break
+            }
+            delay(1000)
         }
-    }*/
+    }
 
 
 }
