@@ -43,7 +43,7 @@ class Scene2 : Scene() {
             position(200, 1000)
             onPress {
                 scane_switcher = -1
-                score1=0
+                score1 = 0
             }
 
         }.also { it.colorMul = Colors.DEEPSKYBLUE }
@@ -315,7 +315,7 @@ class MyScene : Scene() {
                                     }
 
                                     btn.position(440.0,4004.0)
-                                    screen_butons.remove(btn)
+                                    //screen_butons.remove(btn)
                                     allButton.remove(btn2)
 
                                 }
@@ -364,6 +364,9 @@ class MyScene : Scene() {
                             }
                             char_rate += 1
 
+                            val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
+                                .minByOrNull { it.button.y }
+
                             val newb=  uiButton(width = boxSize, boxSize, text = button_text) {
                                 position(13+ i * 63, 450).rotation(0.degrees)
 
@@ -403,16 +406,26 @@ class MyScene : Scene() {
 
                             }.also {it.colorMul =  random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
                             }
-                       val a = newb.parent?.parent
-                       a?.addChild(newb)
-                      screen_butons.add(newb) // gecikme yarattığı için yoruma alındı
-                      allButton.add(MyObject(newb, 0, 0, 0,0))
+                            val a = newb.parent?.parent
+                            a?.addChild(newb)
+                            //screen_butons.add(newb) // gecikme yarattığı için yoruma alındı
+                            allButton.add(MyObject(newb, 0, 0, 0,0))
                             newb.registerBodyWithFixture(type = BodyType.DYNAMIC, density = destiny, friction = 100.0,angularDamping = 50.0, gravityScale = 2.0)
                                 .also { it.textColor = Colors.AZURE }
                                 .also { it.textSize =cellSize/2 }
                                 .also { it.textFont =font }
 
 
+
+
+
+                            if (targetButton != null) {
+                                if (targetButton.isIce != 0 ) {
+                                    allButton.find { it.button == newb }!!.transformIce = 2
+                                    allButton.find { it.button == newb }!!.button.colorMul = Colors.DEEPSKYBLUE
+
+                                }
+                            }
 
                         }
                     }
@@ -510,7 +523,7 @@ class MyScene : Scene() {
                 break
             }
 
-            delay(delayTime - 2000L)
+            delay(delayTime - ((delayTime/10)*4))
 
             //val  charRand = Random.nextInt(0,charrList.size)
 
@@ -576,16 +589,19 @@ class MyScene : Scene() {
 
 
 
-            for (j in screen_butons.size - 1 downTo 0) {
-                val y = screen_butons[j].y
-                if (y < 600 && y.toInt() != 450) {
-                    if (abs(13 + i * 63 - screen_butons[j].x) < 30) {
-                        scane_switcher = 1
-                    }
-                } else if (y > 650 && y.toInt() != 450) {
-                    screen_butons.removeAt(j)
-                }
-            }
+
+
+            /*
+                        for (j in screen_butons.size - 1 downTo 0) {
+                            val y = screen_butons[j].y
+                            if (y < 600 && y.toInt() != 450) {
+                                if (abs(13 + i * 63 - screen_butons[j].x) < 30) {
+                                    //scane_switcher = 1
+                                }
+                            } else if (y > 650 && y.toInt() != 450) {
+                                screen_butons.removeAt(j)
+                            }
+                        }*/
 
 
             val targetButton = allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }
@@ -600,7 +616,7 @@ class MyScene : Scene() {
             }
 
 
-            delay(delayTime - 3000L)
+            delay(delayTime - ((delayTime/10)*6))
 
             if ((targetButton != null) && (ice == 1) && targetButton.isIce == 0) {
                 targetButton.transformIce = 2
@@ -613,7 +629,16 @@ class MyScene : Scene() {
                 }
             }
 
-            screen_butons.add(alp)
+            //screen_butons.add(alp)
+
+            for (i in 0..7) {
+
+                if(allButton.filter { abs(13 + i * 63 - it.button.x) < 30 }.size > 10)
+                {
+                    scane_switcher = 1
+                }
+
+            }
 
 
         }
@@ -635,8 +660,6 @@ class MyScene : Scene() {
             delayTime=1000L
         else if(score1>=300)
             delayTime=2000L
-        else if(score1>=300)
-            delayTime=3000L
         else if(score1>=200)
             delayTime=3000L
         else  if(score1>=100)
