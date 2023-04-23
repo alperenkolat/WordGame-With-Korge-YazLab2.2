@@ -1,37 +1,21 @@
-import com.soywiz.klogger.AnsiEscape
-import com.soywiz.korev.*
 import com.soywiz.korge.Korge
 import com.soywiz.korge.box2d.*
 import com.soywiz.korge.debug.*
 import com.soywiz.korge.input.onClick
-import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.ui.*
 import com.soywiz.korge.view.*
-import com.soywiz.korgw.win32.Win32KmlGl.Companion.viewport
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.font.*
-import com.soywiz.korim.paint.*
-import com.soywiz.korio.dynamic.*
-import com.soywiz.korio.file.VfsFile
-import com.soywiz.korio.file.VfsOpenMode
-import com.soywiz.korio.file.std.*
-import com.soywiz.korma.geom.ScaleMode
 import com.soywiz.korma.geom.degrees
 import com.soywiz.korma.geom.vector.*
 import com.soywiz.korma.random.*
-import com.soywiz.korui.UiButton
 import kotlinx.coroutines.*
-import org.jbox2d.callbacks.ContactListener
 import org.jbox2d.dynamics.*
-import org.jbox2d.dynamics.contacts.Contact
-import java.io.*
-import kotlin.concurrent.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.soywiz.korio.file.std.resourcesVfs
-import com.soywiz.korio.stream.AsyncStream
 
 
 var scane_switcher = 0
@@ -64,6 +48,12 @@ class Scene2 : Scene() {
         for ((index, score) in sortedScores.withIndex()) {
             text("${index+1}. Sıra    $score   Puan", textSize = 30.0, color = Colors.WHITE, font = font)
                 .xy(125, 700 + index * 50)
+        }
+
+        val scoreFile = resourcesVfs["scores.txt"]
+
+        withContext(Dispatchers.IO) {
+            scoreFile.writeString(scores.joinToString("\n"))
         }
 
 
@@ -458,9 +448,10 @@ class MyScene : Scene() {
 
                 if (scane_switcher == 1) {
 
-
                     scores += "$score1"
-                    scoreFile.writeString(scores.joinToString("\n"))
+
+
+                    //scoreFile.writeString(scores.joinToString("\n"))
 
                     scane_switcher = 0
                     sceneContainer.changeTo ({ Scene2() })
@@ -488,7 +479,7 @@ class MyScene : Scene() {
                 char_rate += 1
 
                 val i = Random.nextInt(0, 8)
-                val ice = Random.nextInt(0, 3)
+                val ice = Random.nextInt(0, 5)
 
                 val alp=  uiButton(width = boxSize, boxSize, text = button_text) {
                     position(13+ i * 63, 450).rotation(0.degrees)
@@ -530,10 +521,6 @@ class MyScene : Scene() {
 
                     }
 
-                    /*
-                    onCollisionShape { collisionEvent ->
-                            this.colorMul = Colors.RED
-                    }*/
 
 
                 }.also {it.colorMul = random1[random1[Colors.CYAN, Colors.WHITE], random1[Colors.YELLOW, Colors.CYAN]]
