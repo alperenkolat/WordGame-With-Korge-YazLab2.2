@@ -43,6 +43,7 @@ class Scene2 : Scene() {
             position(200, 1000)
             onPress {
                 scane_switcher = -1
+                score1=0
             }
 
         }.also { it.colorMul = Colors.DEEPSKYBLUE }
