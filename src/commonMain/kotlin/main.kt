@@ -47,7 +47,7 @@ class Scene2 : Scene() {
         scores = scoreFile.readLines()
         scores += "$score1"
 
-        val sortedScores = scores.sortedDescending().take(5)
+        val sortedScores = scores.sortedByDescending { it.toInt() }.take(5)
 
         for ((index, score) in sortedScores.withIndex()) {
             text("${index+1}. Sıra    $score   Puan", textSize = 30.0, color = Colors.WHITE, font = font)
@@ -442,10 +442,10 @@ class MyScene : Scene() {
             }}
 
         //süreye göre harf ekleme
-        GlobalScope.launch {
+        //GlobalScope.launch {
 
 
-            try {
+
                 while (true) {
 
 
@@ -566,11 +566,10 @@ class MyScene : Scene() {
 
                 }
 
-            }catch (e: Exception) {
 
-            }
 
-        }}
+        //}
+}
 
 
     fun UpdateContent(newChar: String) {
@@ -648,4 +647,3 @@ class MyScene : Scene() {
 }
 
 class MyObject(val button: UIButton, var isClicked: Int, var isIce: Int, var transformIce: Int, var value: Int)
-
